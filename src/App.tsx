@@ -11,21 +11,22 @@ interface Todo {
 function App() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['todo'],
-    queryFn: () =>
-      fetch("https://jsonplaceholder.typicode.com/todos").then((res) =>
-        res.json()
-      ),
+    queryFn: async () => {
+      const res = await fetch(`https://jsonplaceholder.typicode.com/todos`);
+      if (!res.ok) {
+        alert('error')
+      }
+      return res.json();
+    },
+    select: (data: Todo[]) => data.map(todo => todo.title),
   });
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   return (
     <div>
-      {data.map((todo: Todo) => 
-        <div key={todo.id}>
-          <h3>{todo.title}</h3>
-          <p>{todo.completed ? "Completed" : "Not completed"}</p>
-        </div>
-      )}
+      {data?.map((title, index) => (
+        <p key={index}>{title}</p>
+      ))}
     </div>
   )
 }
